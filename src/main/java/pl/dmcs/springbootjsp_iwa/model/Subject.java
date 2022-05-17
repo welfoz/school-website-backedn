@@ -1,18 +1,17 @@
 package pl.dmcs.springbootjsp_iwa.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
-@Table(name="student")
 public class Subject {
 
     @Id
     @GeneratedValue
     private long id;
+
+    @OneToOne(mappedBy = "subject")
+    private Grade grade;
 
     private String name;
 
@@ -41,6 +40,16 @@ public class Subject {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+
+
+    public Grade getGrade() {
+        return grade;
+    }
+
+    public void setGrade(Grade grade) {
+        this.grade = grade;
     }
 }
 

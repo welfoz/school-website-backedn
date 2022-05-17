@@ -1,13 +1,10 @@
 package pl.dmcs.springbootjsp_iwa.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 @Entity
-@Table(name="student")
 public class Teacher {
 
     @Id
@@ -20,6 +17,8 @@ public class Teacher {
     @NotBlank(message = "Name has to be filled")
     private String lastname;
 
+    @OneToMany
+    private List<Subject> subjectList;
 
     public String getFirstname() {
         return firstname;
@@ -43,6 +42,14 @@ public class Teacher {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public List<Subject> getSubjectList() {
+        return subjectList;
+    }
+
+    public void setSubjectList(List<Subject> subjectList) {
+        this.subjectList = subjectList;
     }
 }
 

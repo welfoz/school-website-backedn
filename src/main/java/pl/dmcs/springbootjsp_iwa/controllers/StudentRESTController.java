@@ -1,51 +1,83 @@
 package pl.dmcs.springbootjsp_iwa.controllers;
 
+import com.fasterxml.jackson.databind.deser.std.ObjectArrayDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.dmcs.springbootjsp_iwa.model.Student;
+import pl.dmcs.springbootjsp_iwa.model.Subject;
 import pl.dmcs.springbootjsp_iwa.repository.StudentRepository;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/students")
 public class StudentRESTController {
 //
-//    private StudentRepository studentRepository;
+    private StudentRepository studentRepository;
 //
 //
 //
 //
-//    @Autowired
-//    public StudentRESTController(StudentRepository studentRepository, AddressRepository addressRepository, TeamRepository teamRepository) {
-//        this.studentRepository = studentRepository;
-//        this.addressRepository = addressRepository;
-//        this.teamRepository = teamRepository;
-//    }
+    @Autowired
+    public StudentRESTController(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
+    }
+    @RequestMapping(method = RequestMethod.GET/* , produces = "application/xml"*/)
+    public List<Student> findAllStudents() { return studentRepository.findAll(); }
+
+    @RequestMapping(method = RequestMethod.POST)
+    public ResponseEntity<List<Student>> addStudents(@RequestBody List<Student> students) {
+        studentRepository.saveAll(students);
+        return new ResponseEntity<List<Student>>(students, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value="/{id}", method = RequestMethod.GET/* , produces = "application/xml"*/)
+    public ResponseEntity<Student> findOneStudent(@PathVariable("id") long id) {
+        Student student = studentRepository.findById(id);
+        return new ResponseEntity<Student>(student, HttpStatus.OK);
+    }
+
+
+    @RequestMapping(value="/register/{id}", method = RequestMethod.PATCH)
+    // everyone who patch here will register to subjects
+    // the patch do not update other fields
+    public ResponseEntity<Student> registerNewSubjects(@RequestBody Student body, @PathVariable("id") long id) {
+        Student student = studentRepository.findById(id);
+        student.setSubjectSet(body.getSubjectSet());
+        studentRepository.save(student);
+        return new ResponseEntity<Student>(HttpStatus.NO_CONTENT);
+    }
+
+    @RequestMapping(value="/unregister/{id}", method = RequestMethod.PATCH)
+    // everyone who patch here will register to subjects
+    // the patch do not update other fields
+    public ResponseEntity<Student> unregisterSubjects(@RequestBody Student body, @PathVariable("id") long id) {
+        Student student = studentRepository.findById(id);
+        Set<Subject> subjectSet = student.getSubjectSet();
+        Set<Subject> toRemove = new HashSet<>();
+        System.out.println(subjectSet);
+        body.getSubjectSet().forEach(bodySet -> {
+            subjectSet.forEach(el -> {
+                System.out.println(bodySet.getId());
+                System.out.println(el.getId());
+                if (bodySet.getId() == el.getId()) {
+                    toRemove.add(el);
+                }
+            });
+        });
+        subjectSet.removeAll(toRemove);
+        studentRepository.save(student);
+        return new ResponseEntity<Student>(HttpStatus.NO_CONTENT);
+    }
+
+
+
 //
-////
-////    @Autowired
-////    public StudentRESTController(AddressRepository addressRepository) {
-////    }
-////
-////    @Autowired
-////    public StudentRESTController(TeamRepository teamRepository) {
-////    }
-//
-//
-//    @RequestMapping(method = RequestMethod.GET/* , produces = "application/xml"*/)
-//    public List<Student> findAllStudents() { return studentRepository.findAll(); }
-//
-////    @RequestMapping(method = RequestMethod.POST)
-////    public ResponseEntity<List<Student>> addStudents(@RequestBody List<Student> students) {
-////        studentRepository.saveAll(students);
-////        return new ResponseEntity<List<Student>>(students, HttpStatus.CREATED);
-////    }
 //    @RequestMapping(method = RequestMethod.POST)
 //    //@PostMapping
 //    public ResponseEntity<Student> addStudent(@RequestBody Student student) {
@@ -217,7 +249,7 @@ public class StudentRESTController {
 ////    @RequestMapping(method = RequestMethod.TRACE/* , produces = "application/xml"*/)
 ////    public void requestMappingTrace() {
 ////    }
-//
+//v
 //    @RequestMapping(value="/{id}", method = RequestMethod.GET/* , produces = "application/xml"*/)
 //    public ResponseEntity<Student> findOneStudent(@PathVariable("id") long id) {
 //        Student student = studentRepository.findById(id);

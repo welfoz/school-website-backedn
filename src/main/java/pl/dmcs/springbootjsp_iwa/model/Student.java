@@ -1,8 +1,13 @@
 package pl.dmcs.springbootjsp_iwa.model;
 
+import org.hibernate.dialect.Sybase11Dialect;
+import org.hibernate.validator.constraints.UniqueElements;
+import org.springframework.format.annotation.NumberFormat;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name="student")
@@ -11,6 +16,15 @@ public class Student {
     @Id
     @GeneratedValue
     private long id;
+
+
+    @OneToOne(mappedBy = "student")
+    private Grade grade;
+
+
+    // Set to avoid duplicates
+    @ManyToMany
+    private Set<Subject> subjectSet;
 
     @NotBlank(message = "Name has to be filled")
     private String firstname;
@@ -60,6 +74,16 @@ public class Student {
     public void setId(long id) {
         this.id = id;
     }
+
+    public Set<Subject> getSubjectSet() {
+        return subjectSet;
+    }
+
+    public void setSubjectSet(Set<Subject> subjectSet) {
+        this.subjectSet = subjectSet;
+    }
+
+    public void clearSubjectSet() {
+        this.subjectSet.clear();
+    }
 }
-
-
