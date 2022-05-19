@@ -42,6 +42,12 @@ public class StudentRESTController {
         return new ResponseEntity<Student>(student, HttpStatus.OK);
     }
 
+//    @RequestMapping(value="/grade/{id}", method = RequestMethod.GET/* , produces = "application/xml"*/)
+//    public ResponseEntity<Student> findGradesForOneStudent(@PathVariable("id") long id) {
+//        Student student = studentRepository.findById(id);
+//        return new ResponseEntity<Student>(student, HttpStatus.OK);
+//    }
+
 
     @RequestMapping(value="/register/{id}", method = RequestMethod.PATCH)
     // everyone who patch here will register to subjects

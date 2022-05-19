@@ -1,5 +1,6 @@
 package pl.dmcs.springbootjsp_iwa.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.dialect.Sybase11Dialect;
 import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.format.annotation.NumberFormat;
@@ -18,8 +19,8 @@ public class Student {
     private long id;
 
 
-    @OneToOne(mappedBy = "student")
-    private Grade grade;
+    @OneToMany(mappedBy = "student")
+    private List<Grade> gradeList;
 
 
     // Set to avoid duplicates
@@ -85,5 +86,13 @@ public class Student {
 
     public void clearSubjectSet() {
         this.subjectSet.clear();
+    }
+
+    public List<Grade> getGradeList() {
+        return gradeList;
+    }
+
+    public void setGradeList(List<Grade> gradeList) {
+        this.gradeList = gradeList;
     }
 }

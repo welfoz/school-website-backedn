@@ -1,18 +1,26 @@
 package pl.dmcs.springbootjsp_iwa.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
 public class Grade {
 
-    @OneToOne
+    @ManyToOne
+    @JsonIgnore
     private Student student;
 
     @OneToOne
     private Subject subject;
 
-    private Number mark;
+    public void setMark(double mark) {
+        this.mark = mark;
+    }
+
+    private double mark;
 
     @Id
     @GeneratedValue
@@ -43,13 +51,10 @@ public class Grade {
         this.id = id;
     }
 
-    public Number getMark() {
+    public double getMark() {
         return mark;
     }
 
-    public void setMark(Number mark) {
-        this.mark = mark;
-    }
 }
 
 

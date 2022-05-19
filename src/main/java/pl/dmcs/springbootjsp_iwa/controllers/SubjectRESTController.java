@@ -13,6 +13,7 @@ import java.util.List;
 
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/subject")
 public class SubjectRESTController {
 
@@ -27,6 +28,7 @@ public class SubjectRESTController {
     public SubjectRESTController(SubjectRepository subjectRepository) {
         this.subjectRepository = subjectRepository;
     }
+
     @RequestMapping(method = RequestMethod.GET/* , produces = "application/xml"*/)
     public List<Subject> findAllSubjects() { return subjectRepository.findAll(); }
 

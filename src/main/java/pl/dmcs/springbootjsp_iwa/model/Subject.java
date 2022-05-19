@@ -1,5 +1,7 @@
 package pl.dmcs.springbootjsp_iwa.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -11,6 +13,7 @@ public class Subject {
     private long id;
 
     @OneToOne(mappedBy = "subject")
+    @JsonIgnore
     private Grade grade;
 
     private String name;
