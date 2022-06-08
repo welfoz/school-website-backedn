@@ -1,7 +1,9 @@
 package pl.dmcs.springbootjsp_iwa.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 import java.util.List;
@@ -9,18 +11,20 @@ import java.util.List;
 @Entity
 public class Grade {
 
+    //    @JsonBackReference(value="student")
     @ManyToOne
-    @JsonIgnore
+    @JoinColumn(name="student_id")
+    @JsonIgnoreProperties(value = {"subjectSet", "gradeList", "firstname", "lastname", "email"})
     private Student student;
 
-    @OneToOne
+//    @JsonBackReference(value="gradeList")
+    @ManyToOne
+    @JsonIgnoreProperties(value = {"gradeList", "studentSet", "teacher", "name", "description"})
+    @JoinColumn(name="subject_id")
     private Subject subject;
 
-    public void setMark(double mark) {
-        this.mark = mark;
-    }
 
-    private double mark;
+    private String mark;
 
     @Id
     @GeneratedValue
@@ -51,8 +55,12 @@ public class Grade {
         this.id = id;
     }
 
-    public double getMark() {
+    public String getMark() {
         return mark;
+    }
+
+    public void setMark(String mark) {
+        this.mark = mark;
     }
 
 }

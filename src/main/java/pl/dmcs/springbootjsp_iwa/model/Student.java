@@ -1,6 +1,10 @@
 package pl.dmcs.springbootjsp_iwa.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import net.bytebuddy.implementation.bind.annotation.DefaultMethod;
 import org.hibernate.dialect.Sybase11Dialect;
 import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.format.annotation.NumberFormat;
@@ -19,13 +23,20 @@ public class Student {
     private long id;
 
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
+//    @JsonIgnore
+    @JsonIgnoreProperties(value = {"student"})
     private List<Grade> gradeList;
 
 
     // Set to avoid duplicates
     @ManyToMany
-    private Set<Subject> subjectSet;
+    @JsonIgnoreProperties(value = {"studentSet", "gradeList"})
+    @JoinTable(name = "students_courses",
+            joinColumns = { @JoinColumn(name = "student_id")},
+            inverseJoinColumns = { @JoinColumn(name = "subject_id") }
+    )
+    private Set<Subject> subjectSet = new HashSet<>();
 
     @NotBlank(message = "Name has to be filled")
     private String firstname;

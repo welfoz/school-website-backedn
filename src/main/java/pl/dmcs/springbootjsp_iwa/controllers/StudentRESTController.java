@@ -28,7 +28,31 @@ public class StudentRESTController {
         this.studentRepository = studentRepository;
     }
     @RequestMapping(method = RequestMethod.GET/* , produces = "application/xml"*/)
-    public List<Student> findAllStudents() { return studentRepository.findAll(); }
+    public List<Student> findAllStudents() { 
+        List<Student> students = studentRepository.findAll();
+        /* NOT WORKING */
+//        // we just want the grades from the right student
+//        students.stream().forEach(student -> {
+//            System.out.println(student.getId());
+//            student.getSubjectSet().stream().forEach(subject -> {
+//                System.out.println(subject);
+//                System.out.println(subject.getGradeList());
+//                List toRemove = new ArrayList();
+//                subject.getGradeList().stream().forEach(grade -> {
+//                    System.out.println("grade");
+//                    System.out.println(grade.getStudent().getId());
+//                    if (grade.getStudent().getId() != student.getId()) {
+//                        System.out.println("remove");
+//                        toRemove.add(grade);
+//                    }
+//                });
+//                subject.getGradeList().removeAll(toRemove);
+//            });
+//        });
+
+        return students;
+    }
+    
 
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<List<Student>> addStudents(@RequestBody List<Student> students) {
@@ -39,6 +63,16 @@ public class StudentRESTController {
     @RequestMapping(value="/{id}", method = RequestMethod.GET/* , produces = "application/xml"*/)
     public ResponseEntity<Student> findOneStudent(@PathVariable("id") long id) {
         Student student = studentRepository.findById(id);
+        student.getSubjectSet().stream().forEach(subject -> {
+            System.out.println(subject);
+            List toRemove = new ArrayList();
+            subject.getGradeList().stream().forEach(grade -> {
+                if (grade.getStudent().getId() != id) {
+                    toRemove.add(grade);
+                }
+            });
+            subject.getGradeList().removeAll(toRemove);
+        });
         return new ResponseEntity<Student>(student, HttpStatus.OK);
     }
 
@@ -55,6 +89,7 @@ public class StudentRESTController {
     public ResponseEntity<Student> registerNewSubjects(@RequestBody Student body, @PathVariable("id") long id) {
         Student student = studentRepository.findById(id);
         student.setSubjectSet(body.getSubjectSet());
+        System.out.println(body.getSubjectSet());
         studentRepository.save(student);
         return new ResponseEntity<Student>(HttpStatus.NO_CONTENT);
     }

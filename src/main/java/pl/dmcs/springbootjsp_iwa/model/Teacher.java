@@ -1,8 +1,14 @@
 package pl.dmcs.springbootjsp_iwa.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Teacher {
@@ -17,8 +23,11 @@ public class Teacher {
     @NotBlank(message = "Name has to be filled")
     private String lastname;
 
-    @OneToMany
-    private List<Subject> subjectList;
+    @OneToMany(mappedBy = "teacher")
+//    @JsonManagedReference(value="teacher")
+//    @JsonBackReference(value = "teacher")
+    @JsonIgnoreProperties(value = {"teacher"})
+    private Set<Subject> subjects;
 
     public String getFirstname() {
         return firstname;
@@ -44,12 +53,13 @@ public class Teacher {
         this.id = id;
     }
 
-    public List<Subject> getSubjectList() {
-        return subjectList;
+
+    public Set<Subject> getSubjects() {
+        return subjects;
     }
 
-    public void setSubjectList(List<Subject> subjectList) {
-        this.subjectList = subjectList;
+    public void setSubjects(Set<Subject> subjects) {
+        this.subjects = subjects;
     }
 }
 
