@@ -77,6 +77,16 @@ public class AuthRESTController {
                             .orElseThrow(() -> new RuntimeException("Fail -> Cause: Admin Role not found."));
                     roles.add(adminRole);
                     break;
+                case "student":
+                    Role studentRole = roleRepository.findByName(RoleName.ROLE_STUDENT)
+                            .orElseThrow(() -> new RuntimeException("Fail -> Cause: Admin Role not found."));
+                    roles.add(studentRole);
+                    break;
+                case "teacher":
+                    Role teacherRole = roleRepository.findByName(RoleName.ROLE_TEACHER)
+                            .orElseThrow(() -> new RuntimeException("Fail -> Cause: Admin Role not found."));
+                    roles.add(teacherRole);
+                    break;
                 default:
                     Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
                             .orElseThrow(() -> new RuntimeException("Fail -> Cause: User Role not found."));
@@ -85,6 +95,8 @@ public class AuthRESTController {
         });
 
         user.setRoles(roles);
+        user.setUniqueRole_id(signUpRequest.getUnique_role_id());
+        System.out.println(user.getUniqueRole_id());
         userRepository.save(user);
 
         return new ResponseEntity<>(new ResponseMessage("User registered successfully."), HttpStatus.OK);

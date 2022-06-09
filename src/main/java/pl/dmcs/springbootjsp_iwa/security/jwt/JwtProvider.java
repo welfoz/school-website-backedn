@@ -17,6 +17,7 @@ public class JwtProvider {
     @Value("${pl.dmcs.rkotas.jwtExpiration}")
     private int jwtExpiration;
 
+
     public String generateJwtToken(Authentication authentication) {
         UserPrinciple userPrinciple = (UserPrinciple) authentication.getPrincipal();
 

@@ -25,6 +25,8 @@ public class User {
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles = new HashSet<>();
 
+    private Long uniqueRole_id;
+
     public User() {
     }
 
@@ -63,5 +65,14 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+
+    public Long getUniqueRole_id() {
+        return uniqueRole_id;
+    }
+
+    public void setUniqueRole_id(Long uniqueRole_id) {
+        this.uniqueRole_id = uniqueRole_id;
     }
 }

@@ -7,7 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.dmcs.springbootjsp_iwa.model.Student;
 import pl.dmcs.springbootjsp_iwa.model.Subject;
+import pl.dmcs.springbootjsp_iwa.model.User;
 import pl.dmcs.springbootjsp_iwa.repository.StudentRepository;
+import pl.dmcs.springbootjsp_iwa.repository.UserRepository;
+import pl.dmcs.springbootjsp_iwa.security.jwt.JwtProvider;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
@@ -19,40 +22,44 @@ import java.util.stream.Collectors;
 public class StudentRESTController {
 //
     private StudentRepository studentRepository;
+    private UserRepository userRepository;
 //
 //
 //
 //
     @Autowired
-    public StudentRESTController(StudentRepository studentRepository) {
+    public StudentRESTController(StudentRepository studentRepository, UserRepository userRepository) {
         this.studentRepository = studentRepository;
+        this.userRepository = userRepository;
     }
-    @RequestMapping(method = RequestMethod.GET/* , produces = "application/xml"*/)
-    public List<Student> findAllStudents() { 
-        List<Student> students = studentRepository.findAll();
-        /* NOT WORKING */
-//        // we just want the grades from the right student
-//        students.stream().forEach(student -> {
-//            System.out.println(student.getId());
-//            student.getSubjectSet().stream().forEach(subject -> {
-//                System.out.println(subject);
-//                System.out.println(subject.getGradeList());
-//                List toRemove = new ArrayList();
-//                subject.getGradeList().stream().forEach(grade -> {
-//                    System.out.println("grade");
-//                    System.out.println(grade.getStudent().getId());
-//                    if (grade.getStudent().getId() != student.getId()) {
-//                        System.out.println("remove");
-//                        toRemove.add(grade);
-//                    }
-//                });
-//                subject.getGradeList().removeAll(toRemove);
-//            });
-//        });
+//    @RequestMapping(method = RequestMethod.GET/* , produces = "application/xml"*/)
+//    public List<Student> findAllStudents() {
+//        List<Student> students = studentRepository.findAll();
+//        /* NOT WORKING */
+////        // we just want the grades from the right student
+////        students.stream().forEach(student -> {
+////            System.out.println(student.getId());
+////            student.getSubjectSet().stream().forEach(subject -> {
+////                System.out.println(subject);
+////                System.out.println(subject.getGradeList());
+////                List toRemove = new ArrayList();
+////                subject.getGradeList().stream().forEach(grade -> {
+////                    System.out.println("grade");
+////                    System.out.println(grade.getStudent().getId());
+////                    if (grade.getStudent().getId() != student.getId()) {
+////                        System.out.println("remove");
+////                        toRemove.add(grade);
+////                    }
+////                });
+////                subject.getGradeList().removeAll(toRemove);
+////            });
+////        });
+//
+//        return students;
+//    }
 
-        return students;
-    }
-    
+    @Autowired
+    private JwtProvider tokenProvider;
 
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<List<Student>> addStudents(@RequestBody List<Student> students) {
@@ -61,19 +68,32 @@ public class StudentRESTController {
     }
 
     @RequestMapping(value="/{id}", method = RequestMethod.GET/* , produces = "application/xml"*/)
-    public ResponseEntity<Student> findOneStudent(@PathVariable("id") long id) {
+    public ResponseEntity<Student> findOneStudent(@PathVariable("id") long id, @RequestHeader("Authorization") String token) {
         Student student = studentRepository.findById(id);
-        student.getSubjectSet().stream().forEach(subject -> {
-            System.out.println(subject);
-            List toRemove = new ArrayList();
-            subject.getGradeList().stream().forEach(grade -> {
-                if (grade.getStudent().getId() != id) {
-                    toRemove.add(grade);
-                }
+
+        // test if the request is allowed to access the data
+        // only if the bearer token belongs to the good student
+        String jwt = token.substring(token.indexOf(" "));
+        String username = tokenProvider.getUserNameFromJwtToken(jwt);
+
+        Optional<User> user = userRepository.findByUsername(username);
+        if ((user.isPresent()) && (user.get().getUniqueRole_id() == id)) {
+
+
+            student.getSubjectSet().stream().forEach(subject -> {
+                System.out.println(subject);
+                List toRemove = new ArrayList();
+                subject.getGradeList().stream().forEach(grade -> {
+                    if (grade.getStudent().getId() != id) {
+                        toRemove.add(grade);
+                    }
+                });
+                subject.getGradeList().removeAll(toRemove);
             });
-            subject.getGradeList().removeAll(toRemove);
-        });
-        return new ResponseEntity<Student>(student, HttpStatus.OK);
+            return new ResponseEntity<Student>(student, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
 //    @RequestMapping(value="/grade/{id}", method = RequestMethod.GET/* , produces = "application/xml"*/)

@@ -11,6 +11,7 @@ public class SignUpForm {
     private String username;
 
     private Set<String> role;
+    private Long unique_role_id;
 
     @NotBlank
     @Size(min = 6, max = 40)
@@ -38,5 +39,13 @@ public class SignUpForm {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Long getUnique_role_id() {
+        return unique_role_id;
+    }
+
+    public void setUnique_role_id(Long unique_role_id) {
+        this.unique_role_id = unique_role_id;
     }
 }

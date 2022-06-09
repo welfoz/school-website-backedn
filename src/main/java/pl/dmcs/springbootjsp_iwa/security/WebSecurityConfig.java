@@ -58,9 +58,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // next line for secured app
                 //.antMatchers("/restApi/students/**").hasAnyRole("ADMIN","USER") //hasRole("ADMIN")
                 // next app for not secured version (lecture with REST)
-                .antMatchers("/students/**").permitAll()
-                .antMatchers("/subject/**").permitAll()
-                .antMatchers("/teachers/**").permitAll()
+                .antMatchers("/students/**").hasRole("STUDENT")
+                .antMatchers("/subject/**").hasAnyRole("TEACHER", "USER")
+                .antMatchers("/teachers/**").hasRole("TEACHER") //.hasAnyRole("ADMIN","USER") //hasRole("ADMIN")
                 .antMatchers("/exampleSecurity/user").hasRole("USER")
                 .antMatchers("/exampleSecurity/admin").hasRole("ADMIN")
                 .anyRequest().authenticated()
