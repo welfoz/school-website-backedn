@@ -85,14 +85,16 @@ public class TeacherRESTController {
     @RequestMapping(value="subject/register/{id}", method = RequestMethod.PATCH)
     public ResponseEntity<Teacher> registerNewSubjects(@RequestBody Teacher body, @PathVariable("id") long id) {
         Teacher teacher = teacherRepository.findById(id);
-        teacher.setSubjects(body.getSubjects());
+        System.out.println(teacher);
+//        teacher.setSubjects(body.getSubjects());
         System.out.println(body.getSubjects());
-        teacher.getSubjects().forEach(el -> {
+        body.getSubjects().forEach(el -> {
             System.out.println(el.getId());
             Subject subject = subjectRepository.findById(el.getId());
             subject.setTeacher(teacher);
+            subjectRepository.save(subject);
         });
-        teacherRepository.save(teacher);
+//        teacherRepository.save(teacher);
         return new ResponseEntity<Teacher>(HttpStatus.NO_CONTENT);
     }
 
