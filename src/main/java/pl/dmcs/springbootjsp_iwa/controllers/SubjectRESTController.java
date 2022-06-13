@@ -79,11 +79,11 @@ public class SubjectRESTController {
         return subjects;
     }
 
-    @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<List<Subject>> addSubjects(@RequestBody List<Subject> subjectList) {
-        subjectRepository.saveAll(subjectList);
-        return new ResponseEntity<List<Subject>>(subjectList, HttpStatus.CREATED);
-    }
+//    @RequestMapping(method = RequestMethod.POST)
+//    public ResponseEntity<List<Subject>> addSubjects(@RequestBody List<Subject> subjectList) {
+//        subjectRepository.saveAll(subjectList);
+//        return new ResponseEntity<List<Subject>>(subjectList, HttpStatus.CREATED);
+//    }
 //    @RequestMapping(value="/{id}", method = RequestMethod.GET/* , produces = "application/xml"*/)
 //    public ResponseEntity<List<Student>> findOneSubject(@PathVariable("id") long id) {
 //        Subject subject = subjectRepository.findById(id);
@@ -91,11 +91,11 @@ public class SubjectRESTController {
 //        return new ResponseEntity<List<Student>>(studentList, HttpStatus.OK);
 //    }
 
-    @RequestMapping(value="/{id}", method = RequestMethod.GET/* , produces = "application/xml"*/)
-    public ResponseEntity<List<Subject>> findOneSubject(@PathVariable("id") long id) {
-        List<Subject> subjects = subjectRepository.fab(id);
-//        List<Student> studentList = studentRepository.findAllBySubjectSet(subject);
-        return new ResponseEntity<List<Subject>>(subjects, HttpStatus.OK);
-    }
+//    @RequestMapping(value="/{id}", method = RequestMethod.GET/* , produces = "application/xml"*/)
+//    public ResponseEntity<List<Subject>> findOneSubject(@PathVariable("id") long id) {
+//        List<Subject> subjects = subjectRepository.fab(id);
+////        List<Student> studentList = studentRepository.findAllBySubjectSet(subject);
+//        return new ResponseEntity<List<Subject>>(subjects, HttpStatus.OK);
+//    }
 }
 

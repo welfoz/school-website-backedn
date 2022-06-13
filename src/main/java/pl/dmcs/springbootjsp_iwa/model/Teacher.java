@@ -17,10 +17,10 @@ public class Teacher {
     @GeneratedValue
     private long id;
 
-    @NotBlank(message = "Name has to be filled")
+//    @NotBlank(message = "Name has to be filled")
     private String firstname;
 
-    @NotBlank(message = "Name has to be filled")
+//    @NotBlank(message = "Name has to be filled")
     private String lastname;
 
     @OneToMany(mappedBy = "teacher")

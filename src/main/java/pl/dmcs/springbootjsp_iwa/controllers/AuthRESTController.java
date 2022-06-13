@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+//import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -14,15 +15,16 @@ import pl.dmcs.springbootjsp_iwa.message.request.LoginForm;
 import pl.dmcs.springbootjsp_iwa.message.request.SignUpForm;
 import pl.dmcs.springbootjsp_iwa.message.response.JwtResponse;
 import pl.dmcs.springbootjsp_iwa.message.response.ResponseMessage;
-import pl.dmcs.springbootjsp_iwa.model.Role;
-import pl.dmcs.springbootjsp_iwa.model.RoleName;
-import pl.dmcs.springbootjsp_iwa.model.User;
+import pl.dmcs.springbootjsp_iwa.model.*;
 import pl.dmcs.springbootjsp_iwa.repository.RoleRepository;
+import pl.dmcs.springbootjsp_iwa.repository.StudentRepository;
+import pl.dmcs.springbootjsp_iwa.repository.TeacherRepository;
 import pl.dmcs.springbootjsp_iwa.repository.UserRepository;
 import pl.dmcs.springbootjsp_iwa.security.jwt.JwtProvider;
 
 import javax.validation.Valid;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -45,6 +47,12 @@ public class AuthRESTController {
     @Autowired
     JwtProvider jwtProvider;
 
+    @Autowired
+    StudentRepository studentRepository;
+
+    @Autowired
+    TeacherRepository teacherRepository;
+
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginForm loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -54,7 +62,11 @@ public class AuthRESTController {
         String jwt = jwtProvider.generateJwtToken(authentication);
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-        return ResponseEntity.ok(new JwtResponse(jwt,userDetails.getUsername(), userDetails.getAuthorities()));
+
+        Optional<User> user = userRepository.findByUsername(userDetails.getUsername());
+
+//        System.out.println(user.get().getUniqueRole_id());
+        return ResponseEntity.ok(new JwtResponse(jwt,userDetails.getUsername(), userDetails.getAuthorities(), user.get().getUniqueRole_id().toString()));
     }
 
     @PostMapping("/signup")
@@ -63,6 +75,11 @@ public class AuthRESTController {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return new ResponseEntity<>(new ResponseMessage("Fail -> Username is already taken."), HttpStatus.BAD_REQUEST);
         }
+
+
+
+
+
 
         // Create user account
         User user = new User(signUpRequest.getUsername(), passwordEncoder.encode(signUpRequest.getPassword()));
@@ -78,11 +95,19 @@ public class AuthRESTController {
                     roles.add(adminRole);
                     break;
                 case "student":
+                    // create student
+                    Student student = new Student();
+                    studentRepository.save(student);
+                    user.setUniqueRole_id(student.getId());
                     Role studentRole = roleRepository.findByName(RoleName.ROLE_STUDENT)
                             .orElseThrow(() -> new RuntimeException("Fail -> Cause: Admin Role not found."));
                     roles.add(studentRole);
                     break;
                 case "teacher":
+                    // create teacher
+                    Teacher teacher = new Teacher();
+                    teacherRepository.save(teacher);
+                    user.setUniqueRole_id(teacher.getId());
                     Role teacherRole = roleRepository.findByName(RoleName.ROLE_TEACHER)
                             .orElseThrow(() -> new RuntimeException("Fail -> Cause: Admin Role not found."));
                     roles.add(teacherRole);
@@ -95,7 +120,6 @@ public class AuthRESTController {
         });
 
         user.setRoles(roles);
-        user.setUniqueRole_id(signUpRequest.getUnique_role_id());
         System.out.println(user.getUniqueRole_id());
         userRepository.save(user);
 

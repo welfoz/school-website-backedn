@@ -1,6 +1,5 @@
 package pl.dmcs.springbootjsp_iwa.controllers;
 
-import com.fasterxml.jackson.databind.deser.std.ObjectArrayDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,9 +11,7 @@ import pl.dmcs.springbootjsp_iwa.repository.StudentRepository;
 import pl.dmcs.springbootjsp_iwa.repository.UserRepository;
 import pl.dmcs.springbootjsp_iwa.security.jwt.JwtProvider;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -24,13 +21,51 @@ public class StudentRESTController {
     private StudentRepository studentRepository;
     private UserRepository userRepository;
 //
-//
+    @Autowired
+    private JwtProvider tokenProvider;
+    //
 //
 //
     @Autowired
     public StudentRESTController(StudentRepository studentRepository, UserRepository userRepository) {
         this.studentRepository = studentRepository;
         this.userRepository = userRepository;
+    }
+
+//    public Optional<Long> checkSecurityUserRights(String token) {
+//        String jwt = token.substring(token.indexOf(" "));
+//        String username = tokenProvider.getUserNameFromJwtToken(jwt);
+//
+//        Optional<User> user = userRepository.findByUsername(username);
+//        return Optional.ofNullable(user.get().getUniqueRole_id());
+//    }
+
+    public Boolean checkSecurityUserRights(String token, Long id) {
+        String jwt = token.substring(token.indexOf(" "));
+        String username = tokenProvider.getUserNameFromJwtToken(jwt);
+
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isPresent() && user.get().getUniqueRole_id().equals(id)) {
+            return true;
+        }
+        return false;
+
+    }
+
+    // patch to set student info
+    @RequestMapping(value="{id}", method = RequestMethod.PATCH)
+    public ResponseEntity<Student> setStudentInfos(@RequestBody Student body, @PathVariable("id") long id, @RequestHeader("Authorization") String token) {
+        Student student = studentRepository.findById(id);
+//        Optional<Long> userId = checkSecurityUserRights(token);
+        Boolean isTheRightUser = checkSecurityUserRights(token, id);
+        if (isTheRightUser) {
+            student.setFirstname(body.getFirstname());
+
+            student.setLastname(body.getLastname());
+            student.setEmail(body.getEmail());
+            studentRepository.save(student);
+        }
+        return new ResponseEntity<Student>(HttpStatus.NO_CONTENT);
     }
 //    @RequestMapping(method = RequestMethod.GET/* , produces = "application/xml"*/)
 //    public List<Student> findAllStudents() {
@@ -58,14 +93,12 @@ public class StudentRESTController {
 //        return students;
 //    }
 
-    @Autowired
-    private JwtProvider tokenProvider;
 
-    @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<List<Student>> addStudents(@RequestBody List<Student> students) {
-        studentRepository.saveAll(students);
-        return new ResponseEntity<List<Student>>(students, HttpStatus.CREATED);
-    }
+//    @RequestMapping(method = RequestMethod.POST)
+//    public ResponseEntity<List<Student>> addStudents(@RequestBody List<Student> students) {
+//        studentRepository.saveAll(students);
+//        return new ResponseEntity<List<Student>>(students, HttpStatus.CREATED);
+//    }
 
     @RequestMapping(value="/{id}", method = RequestMethod.GET/* , produces = "application/xml"*/)
     public ResponseEntity<Student> findOneStudent(@PathVariable("id") long id, @RequestHeader("Authorization") String token) {
@@ -108,7 +141,7 @@ public class StudentRESTController {
     // the patch do not update other fields
     public ResponseEntity<Student> registerNewSubjects(@RequestBody Student body, @PathVariable("id") long id) {
         Student student = studentRepository.findById(id);
-        student.setSubjectSet(body.getSubjectSet());
+        student.addSubjectSet(body.getSubjectSet());
         System.out.println(body.getSubjectSet());
         studentRepository.save(student);
         return new ResponseEntity<Student>(HttpStatus.NO_CONTENT);

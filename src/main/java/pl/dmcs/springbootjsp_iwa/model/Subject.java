@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -18,10 +19,9 @@ public class Subject {
     @GeneratedValue
     private long id;
 
+//    @Nullable
     @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
-//    @JsonManagedReference(value = "subject")
     @JsonIgnoreProperties(value = {"subject", "gradeList"})
-//    @JsonIgnore
     private List<Grade> gradeList;
 
     @ManyToMany(mappedBy = "subjectSet", fetch = FetchType.LAZY)

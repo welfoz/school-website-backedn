@@ -38,10 +38,10 @@ public class Student {
     )
     private Set<Subject> subjectSet = new HashSet<>();
 
-    @NotBlank(message = "Name has to be filled")
+//    @NotBlank(message = "Name has to be filled")
     private String firstname;
 
-    @NotBlank(message = "Name has to be filled")
+//    @NotBlank(message = "Name has to be filled")
     private String lastname;
 
     private String email;
@@ -105,5 +105,9 @@ public class Student {
 
     public void setGradeList(List<Grade> gradeList) {
         this.gradeList = gradeList;
+    }
+
+    public void addSubjectSet(Set<Subject> subjectSet) {
+        this.subjectSet.addAll(subjectSet);
     }
 }
